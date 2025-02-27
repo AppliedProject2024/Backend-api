@@ -155,7 +155,30 @@ def refresh():
         return resp, 200
     except Exception as e:
         return jsonify({"error": f"Error refreshing token: {str(e)}"}), 500
+
+#check session route
+@auth_bp.route("/check-session", methods=["GET"])
+#require refresh token to reinstate users session
+@jwt_required(refresh=True)
+def check_session():
+    try: 
+        #get current user based on refresh token
+        current_user = get_jwt_identity()
+        if current_user is None:
+            return jsonify({"error": "User not found"}), 403
+        
+        #create new access token
+        access_token = create_access_token(identity=current_user)
+
+        #return current user email and set access token
+        resp = make_response(jsonify({"email": current_user}))
+        set_access_cookies(resp, access_token)
+
+        return resp, 200
+    except Exception as e:
+        return jsonify({"error": f"Error checking session: {str(e)}"}), 500
     
+
 #test
 @auth_bp.route("/test" , methods=["GET"])
 @jwt_required()
