@@ -12,7 +12,8 @@ create_refresh_token,
 set_access_cookies, 
 set_refresh_cookies, 
 jwt_required,
-get_jwt_identity
+get_jwt_identity,
+unset_jwt_cookies
 )
 
 
@@ -178,6 +179,18 @@ def check_session():
     except Exception as e:
         return jsonify({"error": f"Error checking session: {str(e)}"}), 500
     
+
+#logout route
+@auth_bp.route("/logout", methods=["POST"])
+def logout():
+    try:
+        #reponse with sucessfull logout
+        resp = make_response(jsonify({"message": "Logout successful"}))
+        unset_jwt_cookies(resp)
+        return resp, 200
+    except Exception as e:
+        return jsonify({"error": f"Error Logging out: {str(e)}"})
+
 
 #test
 @auth_bp.route("/test" , methods=["GET"])
