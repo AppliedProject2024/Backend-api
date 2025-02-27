@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, make_response
 import requests
 import os
 from firebase_admin import auth
@@ -6,6 +6,8 @@ from app.firebase_config import FIREBASE_API_KEY
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import smtplib
+from flask_jwt_extended import create_access_token, create_refresh_token, set_access_cookies, set_refresh_cookies, jwt_required
+
 
 #auth blueprint
 auth_bp = Blueprint("auth_bp", __name__)
@@ -43,8 +45,15 @@ def login():
         if not user.email_verified:
             return jsonify({"error": "Email not verified"}), 403
         
-        #return user data if vaild
-        return jsonify({"email": email, "idToken": user_data["idToken"]}), 200
+        #create JWT tokens
+        access_token = create_access_token(identity=email)
+        refresh_token = create_refresh_token(identity=email)
+        
+        #return user data if vaild and set jwt
+        resp = make_response(jsonify({"email": email}))
+        set_access_cookies(resp, access_token) #store in cookie
+        set_refresh_cookies(resp, refresh_token)#store in cookie
+        return resp, 200
     #return error if request was not successful
     else:
         return jsonify({"error": "Invalid email or password"}), 403
@@ -117,3 +126,4 @@ def sendVerificationEmail(email, verification_link):
         return "Verification email sent successfully!"
     except Exception as e:
         return f"Error sending verification email: {str(e)}"
+    
