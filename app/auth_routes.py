@@ -6,7 +6,14 @@ from app.firebase_config import FIREBASE_API_KEY
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import smtplib
-from flask_jwt_extended import create_access_token, create_refresh_token, set_access_cookies, set_refresh_cookies, jwt_required
+from flask_jwt_extended import (
+create_access_token, 
+create_refresh_token,
+set_access_cookies, 
+set_refresh_cookies, 
+jwt_required,
+get_jwt_identity
+)
 
 
 #auth blueprint
@@ -127,3 +134,33 @@ def sendVerificationEmail(email, verification_link):
     except Exception as e:
         return f"Error sending verification email: {str(e)}"
     
+
+#refresh route
+@auth_bp.route("/refresh", methods=["POST"])
+#requir a refresh token so access token can be reset
+@jwt_required(refresh=True)
+def refresh():
+    try:
+        #get current user through refresh token
+        current_user = get_jwt_identity()
+        if current_user is None:
+            return jsonify({"error": "User not found"}), 403
+        #create new access token
+        access_token = create_access_token(identity=current_user)
+
+        #return new access token
+        resp = make_response(jsonify({"message": "Token refreshed"}))
+        set_access_cookies(resp, access_token)
+
+        return resp, 200
+    except Exception as e:
+        return jsonify({"error": f"Error refreshing token: {str(e)}"}), 500
+    
+#test
+@auth_bp.route("/test" , methods=["GET"])
+@jwt_required()
+def test():
+    response = request.cookies
+    response_token = response.get("refresh_token_cookie")
+    print(f"refresh_token " + response_token)
+    return jsonify({"message": "Test route"}), 200
