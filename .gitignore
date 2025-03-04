@@ -1,3 +1,4 @@
 Keys.env
 firebase_credentials.json
 **/__pycache__/
+feedback.db

@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify, make_response
 import requests
 import os
 from firebase_admin import auth
-from app.firebase_config import FIREBASE_API_KEY
+from config.firebase_config import FIREBASE_API_KEY
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import smtplib

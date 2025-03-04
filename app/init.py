@@ -2,9 +2,11 @@ from flask import Flask
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from app.auth_routes import auth_bp
-from app.firebase_config import *
+from app.feedback_routes import feedback_bp
+from config.firebase_config import *
 from datetime import timedelta
 import os
+from config.sqlite_config import init_db
 
 #create flask app
 def create_app():
@@ -25,8 +27,10 @@ def create_app():
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7) #set JWT refresh token expiry time(refresh resets access token expiry time)
 
     jwt = JWTManager(app) #initialise JWT manager
+    init_db() #initial database
     
-    #register auth blueprint
+    #register blueprints
     app.register_blueprint(auth_bp, url_prefix="/auth")
+    app.register_blueprint(feedback_bp, url_prefix="/feedback")
 
     return app
