@@ -3,6 +3,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from app.auth_routes import auth_bp
 from app.feedback_routes import feedback_bp
+from app.file_pro_routes import file_bp
 from config.firebase_config import *
 from datetime import timedelta
 import os
@@ -32,5 +33,6 @@ def create_app():
     #register blueprints
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(feedback_bp, url_prefix="/feedback")
+    app.register_blueprint(file_bp, url_prefix="/file")
 
     return app
