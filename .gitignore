@@ -2,4 +2,5 @@ Keys.env
 firebase_credentials.json
 **/__pycache__/
 feedback.db
-chroma.db/*
+chromadb
+chromadb/*

@@ -2,11 +2,11 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.schema import Document
 from pypdf import PdfReader
 from flask import request, jsonify
-from config.chromadb_config import collection
 import hashlib
+from config.chromadb_config import vector_store
 
 #function to read PDF file
-def ExtractAndChunk(uploaded_file):
+def extract_chunk(uploaded_file, doc_id):
     #extract pdf text
     pdf_reader = PdfReader(uploaded_file)
     full_text = ""
@@ -17,13 +17,24 @@ def ExtractAndChunk(uploaded_file):
     #chunk text using langchain TextSplitter
     text_splitter = CharacterTextSplitter(
         separator="\n", #split by newline
-        chunk_size=1000, #maximun chunk size
+        chunk_size=300, #maximun chunk size
         chunk_overlap=100 #overlap between chunks preserves context
     )
     #split text into chunks
     chunks = text_splitter.split_text(full_text)
-    #return chunks as list of Documents
-    return [Document(page_content=chunk) for chunk in chunks]
+    
+    #return chunks as list of Documents with metadata
+    return[
+        Document(
+            page_content=chunk,
+            metadata={
+                "doc_id": generate_id(uploaded_file),
+                "filename": uploaded_file.filename,
+                "chunk_index": index
+            }
+        )
+        for index, chunk in enumerate(chunks)
+    ]
 
 #gernerate a unique id for file that will be assigned anytime uploaded
 def generate_id(uploaded_file):
@@ -53,28 +64,22 @@ def upload_pdf():
     #generate unique id for file
     doc_id = generate_id(pdf_file)
 
-    #get existing documents id
-    existing_docs = collection.get(
-        where={"doc_id": doc_id},
-        include=["metadatas"]
+    #use search to check if document exists
+    check_result = vector_store.similarity_search(
+        "CHECK_DOCUMENT_EXISTS",
+        filter={"doc_id": doc_id},
+        k=1
     )
-    #check if file is already uploaded
-    if existing_docs['ids']:
-        return jsonify({"error": "File already uploaded"}), 409
 
+    #check if document exists
+    if check_result:
+        return jsonify({"error": "Document already exists"}), 409
+    
     #extract and chunk pdf file
-    chunks = ExtractAndChunk(pdf_file)
+    chunks = extract_chunk(pdf_file, doc_id)
 
-    #add chunks to collection
-    for idx, chunk in enumerate(chunks):
-        #generate id for chunk wiht doc id and index
-        chunk_id = f"{doc_id}_{idx}"
-        collection.add(
-            ids = [chunk_id],
-            documents = [chunk.page_content],
-            #add metadata for chunk with doc id and filename
-            metadatas=[{"doc_id": doc_id, "filename": pdf_file.filename}]
-        )
+    #add chunks to vector store
+    vector_store.add_documents(chunks)
 
     return jsonify({"message": "File uploaded"}), 200
     

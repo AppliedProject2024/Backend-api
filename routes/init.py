@@ -3,7 +3,7 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from routes.auth_routes import auth_bp
 from routes.feedback_routes import feedback_bp
-from app.processing import file_bp
+from routes.processing_routes import file_bp
 from config.firebase_config import *
 from datetime import timedelta
 import os
