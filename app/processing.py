@@ -1,14 +1,9 @@
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.schema import Document
 from pypdf import PdfReader
-import os
-import chromadb
-from flask import Flask, request, jsonify, Blueprint
+from flask import request, jsonify
 from config.chromadb_config import collection
 import hashlib
-
-#feedback blueprint
-file_bp = Blueprint("file_bp", __name__)
 
 #function to read PDF file
 def ExtractAndChunk(uploaded_file):
@@ -44,8 +39,6 @@ def generate_id(uploaded_file):
     #return md5 hash of full text
     return hashlib.md5(full_text.encode('utf-8')).hexdigest()
 
-#route to handle pdf uploads
-@file_bp.route("/upload", methods=["POST"])
 def upload_pdf():
     #check if file is in request
     if "file" not in request.files:
@@ -84,5 +77,4 @@ def upload_pdf():
         )
 
     return jsonify({"message": "File uploaded"}), 200
-    
     

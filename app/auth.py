@@ -1,4 +1,4 @@
-from flask import Blueprint, request, jsonify, make_response
+from flask import request, jsonify, make_response
 import requests
 import os
 from firebase_admin import auth
@@ -11,14 +11,9 @@ create_access_token,
 create_refresh_token,
 set_access_cookies, 
 set_refresh_cookies, 
-jwt_required,
 get_jwt_identity,
 unset_jwt_cookies
 )
-
-
-#auth blueprint
-auth_bp = Blueprint("auth_bp", __name__)
 
 #SMTP credentials
 EMAIL_HOST = os.getenv("EMAIL_HOST")
@@ -26,8 +21,7 @@ EMAIL_PORT = int(os.getenv("EMAIL_PORT"))
 EMAIL_USER = os.getenv("EMAIL_USER")
 EMAIL_PASS = os.getenv("EMAIL_PASS")
 
-#login route
-@auth_bp.route("/login", methods=["POST"])
+#login
 def login():
     #get email and password from request
     data = request.json
@@ -66,8 +60,7 @@ def login():
     else:
         return jsonify({"error": "Invalid email or password"}), 403
     
-#register route
-@auth_bp.route("/register", methods=["POST"])
+#register
 def register():
     #get email and password from request
     data = request.json
@@ -136,10 +129,7 @@ def sendVerificationEmail(email, verification_link):
         return f"Error sending verification email: {str(e)}"
     
 
-#refresh route
-@auth_bp.route("/refresh", methods=["POST"])
-#requir a refresh token so access token can be reset
-@jwt_required(refresh=True)
+#refresh JWT
 def refresh():
     try:
         #get current user through refresh token
@@ -157,10 +147,7 @@ def refresh():
     except Exception as e:
         return jsonify({"error": f"Error refreshing token: {str(e)}"}), 500
 
-#check session route
-@auth_bp.route("/check-session", methods=["GET"])
-#require refresh token to reinstate users session
-@jwt_required(refresh=True)
+#check if active session
 def check_session():
     try: 
         #get current user based on refresh token
@@ -180,8 +167,6 @@ def check_session():
         return jsonify({"error": f"Error checking session: {str(e)}"}), 500
     
 
-#logout route
-@auth_bp.route("/logout", methods=["POST"])
 def logout():
     try:
         #reponse with sucessfull logout
@@ -190,13 +175,3 @@ def logout():
         return resp, 200
     except Exception as e:
         return jsonify({"error": f"Error Logging out: {str(e)}"})
-
-
-#test
-@auth_bp.route("/test" , methods=["GET"])
-@jwt_required()
-def test():
-    response = request.cookies
-    response_token = response.get("refresh_token_cookie")
-    print(f"refresh_token " + response_token)
-    return jsonify({"message": "Test route"}), 200

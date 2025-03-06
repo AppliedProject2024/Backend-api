@@ -1,4 +1,4 @@
-from app.init import create_app
+from routes.init import create_app
 
 #run app
 app = create_app()

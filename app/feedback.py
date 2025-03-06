@@ -1,13 +1,8 @@
-from flask import Blueprint, request, jsonify
+from flask import request, jsonify
 from config.sqlite_config import db_connect
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import get_jwt_identity
 
-#feedback blueprint
-feedback_bp = Blueprint("feedback_bp", __name__)
-
-#submit feedback route
-@feedback_bp.route("/submit", methods=["POST"])
-@jwt_required()
+#submit feedback
 def submit_feedback():
     #get user email from JWT
     user_email = get_jwt_identity()
@@ -33,9 +28,7 @@ def submit_feedback():
     #return success message
     return jsonify({"message": "Feedback submitted"}), 200
 
-#get feedback route
-@feedback_bp.route("/get", methods=["GET"])
-@jwt_required()
+#get feedback from db
 def get_feedback():
     #connect to sqlite database
     connect = db_connect()
