@@ -4,6 +4,7 @@ from flask_jwt_extended import JWTManager
 from routes.auth_routes import auth_bp
 from routes.feedback_routes import feedback_bp
 from routes.processing_routes import file_bp
+from routes.query_routes import query_bp
 from config.firebase_config import *
 from datetime import timedelta
 import os
@@ -34,5 +35,6 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(feedback_bp, url_prefix="/feedback")
     app.register_blueprint(file_bp, url_prefix="/file")
+    app.register_blueprint(query_bp, url_prefix="/ask")
 
     return app

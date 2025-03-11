@@ -28,7 +28,7 @@ def extract_chunk(uploaded_file, doc_id):
         Document(
             page_content=chunk,
             metadata={
-                "doc_id": generate_id(uploaded_file),
+                "doc_id": doc_id,
                 "filename": uploaded_file.filename,
                 "chunk_index": index
             }
