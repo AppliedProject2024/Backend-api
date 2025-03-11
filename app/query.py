@@ -1,10 +1,10 @@
-from langchain_openai import OpenAIEmbeddings
-from config.chromadb_config import CHROMA_PATH
-from langchain_chroma import Chroma
-from flask import jsonify
+from flask import jsonify, request
 from config.chromadb_config import vector_store
+from langchain.chat_models import ChatOpenAI
 
-def query(query_text):
+def query():
+    #get query text from request
+    query_text = request.json["query_text"]
     #retrieve vector store
     db = vector_store
     
@@ -14,5 +14,22 @@ def query(query_text):
     #combine text from all results
     combine_text = "\n\n- -\n\n".join([doc.page_content for doc in results])
 
-    #return combined text
-    return jsonify(combine_text)
+    #template for prompt
+    prompt_template = """"
+    Answer the following question solely based on the following context from retrieved documents: {context}
+    If a piece of information from context is not related to the question, please ignore it.
+    Question: {question}
+    """
+
+    #combine text and query text into prompt
+    prompt = prompt_template.format(context=combine_text, question=query_text)
+
+    #initialise model
+    model = ChatOpenAI()
+
+    #get response from model
+    response = model.predict(prompt)
+
+    #return response
+    return jsonify({"response": response})
+
