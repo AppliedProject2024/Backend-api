@@ -2,11 +2,12 @@ from langchain.text_splitter import CharacterTextSplitter
 from langchain.schema import Document
 from pypdf import PdfReader
 from flask import request, jsonify
+from flask_jwt_extended import get_jwt_identity
 import hashlib
 from config.chromadb_config import vector_store
 
 #function to read PDF file
-def extract_chunk(uploaded_file, doc_id):
+def extract_chunk(uploaded_file, doc_id, user_email):
     #extract pdf text
     pdf_reader = PdfReader(uploaded_file)
     full_text = ""
@@ -30,7 +31,8 @@ def extract_chunk(uploaded_file, doc_id):
             metadata={
                 "doc_id": doc_id,
                 "filename": uploaded_file.filename,
-                "chunk_index": index
+                "chunk_index": index,
+                "user_email": user_email
             }
         )
         for index, chunk in enumerate(chunks)
@@ -64,6 +66,9 @@ def upload_pdf():
     #generate unique id for file
     doc_id = generate_id(pdf_file)
 
+    #get user email
+    user_email = get_jwt_identity()
+
     #use search to check if document exists
     check_result = vector_store.similarity_search(
         "CHECK_DOCUMENT_EXISTS",
@@ -76,10 +81,28 @@ def upload_pdf():
         return jsonify({"error": "Document already exists"}), 409
     
     #extract and chunk pdf file
-    chunks = extract_chunk(pdf_file, doc_id)
+    chunks = extract_chunk(pdf_file, doc_id, user_email)
 
     #add chunks to vector store
     vector_store.add_documents(chunks)
 
     return jsonify({"message": "File uploaded"}), 200
     
+def get_user_documents():
+    #get user email from request
+    user_email = get_jwt_identity()
+    print(f"user_email: {user_email}")
+
+    #use search to get user documents
+    results = vector_store.get(
+        where={"user_email": user_email}
+    )
+
+    #assign results to set to remove duplicates
+    filenames = set()
+    for doc in results.get('metadatas', []):
+        if doc and 'filename' in doc:
+            filenames.add(doc['filename'])
+
+    #return documents
+    return jsonify({"filenames": list(filenames)}), 200

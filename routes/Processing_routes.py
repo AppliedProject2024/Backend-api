@@ -10,3 +10,9 @@ file_bp = Blueprint("file_bp", __name__)
 @jwt_required()
 def upload_route():
     return upload_pdf()
+
+#route to get user document filenames
+@file_bp.route("/extract", methods=["GET"])
+@jwt_required()
+def extract_route():
+    return get_user_documents()
