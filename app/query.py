@@ -104,6 +104,8 @@ def mcq():
     D: Option 4
     Answer: 
 
+    Ensure the correct answers are spread between the options.
+
     Query: {question}
     """
 

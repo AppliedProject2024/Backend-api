@@ -16,3 +16,9 @@ def upload_route():
 @jwt_required()
 def extract_route():
     return get_user_documents()
+
+#route to delete user document filenames
+@file_bp.route("/delete", methods=["DELETE"])
+@jwt_required()
+def delete_route():
+    return delete_document()

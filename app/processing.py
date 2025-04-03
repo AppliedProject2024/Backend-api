@@ -106,3 +106,44 @@ def get_user_documents():
 
     #return documents
     return jsonify({"filenames": list(filenames)}), 200
+
+def delete_document():
+    #get request data
+    data = request.get_json()
+
+    #check if data provided
+    if not data or "filename" not in data:
+        return jsonify({"error": "Filename required"}), 400
+    
+    #retrieve filename from request data
+    filename = data["filename"]
+
+    #get user email for token
+    user_email = get_jwt_identity()
+
+    #use search to get chunks related to filename
+    results = vector_store.get(
+        where={
+            "$and": [
+                {"user_email": user_email},
+                {"filename": filename}
+            ]
+        }
+    )
+
+    #check if chunks exists
+    if not results or not results.get('ids'):
+        return jsonify({"error": "Document not found"}), 404
+    
+    #get ids of chunks to delete
+    chunk_ids = results.get('ids', [])
+
+    #delete chunks from vector store
+    vector_store.delete(
+        ids=chunk_ids
+    )
+
+    return jsonify({
+        "message": f"Document '{filename}' deleted",
+        "chunks_deleted": len(chunk_ids)
+    }), 200
