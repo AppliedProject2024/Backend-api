@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from routes.auth_routes import auth_bp
@@ -9,6 +9,7 @@ from config.firebase_config import *
 from datetime import timedelta
 import os
 from config.sqlite_config import init_db
+import logging
 
 #create flask app
 def create_app():
@@ -24,6 +25,20 @@ def create_app():
     #load environment variables
     load_dotenv('Keys.env')
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+
+    #add logging configuration
+    logging.basicConfig(level=logging.INFO)
+    app.logger.setLevel(logging.INFO)
+    
+    #add request logging middleware
+    @app.before_request
+    def log_request_info():
+        app.logger.info('Request: %s %s %s', request.method, request.path, request.data)
+    
+    @app.after_request
+    def log_response_info(response):
+        app.logger.info('Response: %s', response.status)
+        return response
     
     app.config["JWT_SECRET_KEY"] = JWT_SECRET_KEY #set JWT secret key
     app.config["JWT_TOKEN_LOCATION"] = ["cookies"] #set JWT token location
