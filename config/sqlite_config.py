@@ -1,10 +1,18 @@
 import sqlite3
+import os
 
 #create a database file named feedback.db
-DATABASE = 'feedback.db'
+DATABASE = os.getenv('DATABASE', 'feedback.db')
 
 #connect to the database
 def db_connect():
+    #check if the database file exists
+    db_dir = os.path.dirname(DATABASE)
+
+    #if the directory does not exist create it
+    if db_dir and not os.path.exists(db_dir):
+        os.makedirs(db_dir)
+
     #connect to the database
     connect = sqlite3.connect(DATABASE)
     #return rows as dictionaries

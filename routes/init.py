@@ -13,7 +13,13 @@ from config.sqlite_config import init_db
 #create flask app
 def create_app():
     app = Flask(__name__)
-    CORS(app, supports_credentials=True, origins=["http://localhost:8501"],) #enable CORS
+
+    allowed_origins = [
+        "http://localhost:8501", #local development
+        "https://*.streamlit.app", #production domain
+    ]
+
+    CORS(app, supports_credentials=True, origins=allowed_origins) #enable CORS
 
     #load environment variables
     load_dotenv('Keys.env')
@@ -23,8 +29,8 @@ def create_app():
     app.config["JWT_TOKEN_LOCATION"] = ["cookies"] #set JWT token location
     app.config["JWT_COOKIE_CSRF_PROTECT"] = False #set JWT cookie csrf false
     app.config["JWT_TOKEN_HTTPONLY"] = True  #set JWT token httponly(most secure)
-    app.config["JWT_COOKIE_SECURE"] = False #set JWT cookie secure (false for deveploment)
-    app.config["JWT_COOKIE_SAMESITE"] = "Lax"  #set JWT cookie samesite(most pratical)
+    app.config["JWT_COOKIE_SECURE"] = True if os.getenv("ENVIRONMENT") == "production" else False #set JWT cookie secure(only for production)
+    app.config["JWT_COOKIE_SAMESITE"] = "None" if os.getenv("ENVIRONMENT") == "production" else "Lax" #set JWT cookie samesite
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15) #set JWT access token expiry time
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7) #set JWT refresh token expiry time(refresh resets access token expiry time)
 

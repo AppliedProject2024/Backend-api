@@ -1,0 +1,13 @@
+flask
+flask-cors
+flask-jwt-extended
+python-dotenv
+firebase-admin
+requests
+langchain
+langchain-openai
+langchain-chroma
+pypdf
+openai
+gunicorn
+chromadb
