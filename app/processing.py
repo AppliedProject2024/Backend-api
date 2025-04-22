@@ -18,16 +18,22 @@ def extract_chunk(uploaded_file, doc_id, user_email):
     #chunk text using langchain TextSplitter
     text_splitter = CharacterTextSplitter(
         separator="\n", #split by newline
-        chunk_size=300, #maximun chunk size
+        chunk_size=1000, #maximun chunk size
         chunk_overlap=100 #overlap between chunks preserves context
     )
     #split text into chunks
     chunks = text_splitter.split_text(full_text)
+
+    #get filename
+    filename = uploaded_file.filename
+    #remove file extension from filename
+    filename_without_ext = filename.split(".")[0] if "." in filename else filename
     
     #return chunks as list of Documents with metadata
+    #include filename for more accurate queries
     return[
         Document(
-            page_content=chunk,
+            page_content=f"[From: {filename_without_ext}]\n{chunk}",
             metadata={
                 "doc_id": doc_id,
                 "filename": uploaded_file.filename,
