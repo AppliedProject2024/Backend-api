@@ -101,14 +101,14 @@ def sendVerificationEmail(email, verification_link):
         msg = MIMEMultipart()
         msg['From'] = EMAIL_USER
         msg['To'] = email
-        msg['Subject'] = "Email Verification - IDontKnowMyDocument AI"
+        msg['Subject'] = "Email Verification - StudyBuddy AI"
 
         #body
         body = f"""
         <html>
         <body>
             <p>Hello,</p>
-            <p>Thank you for signing up to IDontKnowMyDocument AI!</p>
+            <p>Thank you for signing up to StudyBuddy AI!</p>
             <p>Please find below a link to verify your email address:</p>
             <a href="{verification_link}">Verify Email</a>
             <p>Thank you! We hope you enjoy using our Application!</p>
