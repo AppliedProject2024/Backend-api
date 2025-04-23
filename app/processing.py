@@ -78,7 +78,7 @@ def upload_pdf():
     #use search to check if document exists
     check_result = vector_store.similarity_search(
         "CHECK_DOCUMENT_EXISTS",
-        filter={"doc_id": doc_id},
+        filter={"doc_id": doc_id, user_email: user_email},
         k=1
     )
 
