@@ -45,7 +45,7 @@ def extract_chunk(uploaded_file, doc_id, user_email):
     ]
 
 #gernerate a unique id for file that will be assigned anytime uploaded
-def generate_id(uploaded_file):
+def generate_id(uploaded_file, user_email):
     #generate hash from file content
     pdf_reader = PdfReader(uploaded_file)
     full_text = ""
@@ -54,9 +54,12 @@ def generate_id(uploaded_file):
         #add page text to full text
         full_text += page.extract_text()
 
+    #add user email to full text to make it unique
+    unique = full_text + user_email
+
     uploaded_file.seek(0)
     #return md5 hash of full text
-    return hashlib.md5(full_text.encode('utf-8')).hexdigest()
+    return hashlib.md5(unique.encode('utf-8')).hexdigest()
 
 def upload_pdf():
     #check if file is in request
@@ -69,16 +72,19 @@ def upload_pdf():
     if pdf_file.filename == "":
         return jsonify({"error": "No file seleced"}), 400
     
-    #generate unique id for file
-    doc_id = generate_id(pdf_file)
-
     #get user email
     user_email = get_jwt_identity()
+
+    #generate unique id for file
+    doc_id = generate_id(pdf_file, user_email)
 
     #use search to check if document exists
     check_result = vector_store.similarity_search(
         "CHECK_DOCUMENT_EXISTS",
-        filter={"doc_id": doc_id, user_email: user_email},
+       filter={"$and": [
+            {"doc_id": {"$eq": doc_id}},
+            {"user_email": {"$eq": user_email}}
+        ]},
         k=1
     )
 
