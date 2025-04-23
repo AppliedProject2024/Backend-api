@@ -41,7 +41,7 @@ def create_app():
         return response
     
     app.config["JWT_SECRET_KEY"] = JWT_SECRET_KEY #set JWT secret key
-    app.config["JWT_TOKEN_LOCATION"] = ["cookies"] #set JWT token location
+    app.config["JWT_TOKEN_LOCATION"] = ["headers"] #set JWT token location
     app.config["JWT_COOKIE_CSRF_PROTECT"] = False #set JWT cookie csrf false
     app.config["JWT_TOKEN_HTTPONLY"] = True  #set JWT token httponly(most secure)
     app.config["JWT_COOKIE_SECURE"] = True if os.getenv("ENVIRONMENT") == "production" else False #set JWT cookie secure(only for production)

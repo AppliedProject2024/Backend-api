@@ -52,10 +52,11 @@ def login():
         refresh_token = create_refresh_token(identity=email)
         
         #return user data if vaild and set jwt
-        resp = make_response(jsonify({"email": email}))
-        set_access_cookies(resp, access_token) #store in cookie
-        set_refresh_cookies(resp, refresh_token)#store in cookie
-        return resp, 200
+        return jsonify({
+            "email": email,
+            "access_token": access_token,
+            "refresh_token": refresh_token
+        }), 200
     #return error if request was not successful
     else:
         return jsonify({"error": "Invalid email or password"}), 403
@@ -140,10 +141,10 @@ def refresh():
         access_token = create_access_token(identity=current_user)
 
         #return new access token
-        resp = make_response(jsonify({"message": "Token refreshed"}))
-        set_access_cookies(resp, access_token)
-
-        return resp, 200
+        return jsonify({
+            "email": current_user,
+            "access_token": access_token
+        })
     except Exception as e:
         return jsonify({"error": f"Error refreshing token: {str(e)}"}), 500
 
@@ -159,14 +160,15 @@ def check_session():
         access_token = create_access_token(identity=current_user)
 
         #return current user email and set access token
-        resp = make_response(jsonify({"email": current_user}))
-        set_access_cookies(resp, access_token)
-
-        return resp, 200
+        return jsonify({
+            "email": current_user,
+            "access_token": access_token
+        }), 200
+    #return error if user not found
     except Exception as e:
         return jsonify({"error": f"Error checking session: {str(e)}"}), 500
     
-
+#logout (not used anymore)
 def logout():
     try:
         #reponse with sucessfull logout
