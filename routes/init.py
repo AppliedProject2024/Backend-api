@@ -45,7 +45,7 @@ def create_app():
     app.config["JWT_COOKIE_CSRF_PROTECT"] = False #set JWT cookie csrf false
     app.config["JWT_TOKEN_HTTPONLY"] = True  #set JWT token httponly(most secure)
     app.config["JWT_COOKIE_SECURE"] = True if os.getenv("ENVIRONMENT") == "production" else False #set JWT cookie secure(only for production)
-    app.config["JWT_COOKIE_SAMESITE"] = "None" if os.getenv("ENVIRONMENT") == "production" else "Lax" #set JWT cookie samesite
+    app.config["JWT_COOKIE_SAMESITE"] = "Strict" if os.getenv("ENVIRONMENT") == "production" else "Lax" #set JWT cookie samesite
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15) #set JWT access token expiry time
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7) #set JWT refresh token expiry time(refresh resets access token expiry time)
 
