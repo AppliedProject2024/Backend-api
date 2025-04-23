@@ -1,13 +1,20 @@
 from flask import jsonify, request
 from config.chromadb_config import vector_store
 from config.ai_api_config import Ai_call_api
+from flask_jwt_extended import get_jwt_identity
 
 def askAI(query_text, prompt_template, word_num, question_count, complexity, language="English"):
     #retrieve vector store
     db = vector_store
 
+    #get user email from JWT token
+    user_email = get_jwt_identity()
+
     #perform similarity search based on query text get 3 chunks for now
-    results = db.similarity_search(query_text, k=20)
+    results = db.similarity_search(
+        query_text,
+        filter={"user_email": user_email},
+        k=20,)
     
     #combine text from all results
     combine_text = "\n\n- -\n\n".join([doc.page_content for doc in results])
