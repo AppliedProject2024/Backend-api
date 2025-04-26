@@ -35,3 +35,6 @@ This application uses a number of envoirment variables, examples of the variable
 - JWT_SECRET_KEY: This is a random secret string you can create yourself. It is used in orderto verify login tokens securely it is easiest to use a generator to create on [here](https://jwtsecret.com/generate)
 - OPEN_API_KEY: This is provided by OpenAI. You will need to [sign into your OpenAI account](https://openai.com) going to the API section and creating a new secret key.
 - DATABASE and CHROMA_PATH: These are simply the location of which the ChromaDB and SQLite database will be located with in the projects directory.
+ 
+## Deployed application:
+Rather then going to the hastle of cloning this application simply visit the deployed version [here](https://studybuddyai-frontend.onrender.com)
