@@ -1,6 +1,24 @@
 # StudyBuddy-AI Backend API
 This repo contains the codebase for the Flask API Backend of StudyBuddy-AI. Here you will find the main inner working of the system including the key technology behind the application Retrieval augmented generation. The Flask API handles all proccesses within the application including authenication, document processing, AI interactions and handling user feedback. The endpoints or routes for this applications can be found in the "routes" directory, with the main funtionality located in the "app" directory. The config directory showcases the configuration of Firebase authenication, ChromaDB, SQLite and OpenAI API.
 
+## Endpoints: 
+1. Authentication Endpoints
+  - /auth/login: Authenticates users and issues access and refresh tokens
+  - /auth/register: Creates new user accounts
+  - /auth/check-session: Verifies active user sessions
+2. Document Management endpoints
+  - /file/upload: Processes and stores uploaded PDF documents
+  - /file/extract: Retrieves a list of users documents
+  - /file/delete: Removes all document chunks associated with a specific
+from the ChromaDB database
+3. Query Endpoints
+  - /ask/query: Handles general questions about documents
+  - /ask/summary: Generates customised summaries of document contents
+  - /ask/mcq: Creates multiple choice questions based on documents
+4. Feedback Endpoints
+  - /feedback/submit: Collect user feedback on system functions and
+  stores it in a SQLite database
+
 ## Cloning and running locally
 If you wish to clone this repository for local hosting there is some steps involved in order to achieve this.
 ### Python version and package requirments.
