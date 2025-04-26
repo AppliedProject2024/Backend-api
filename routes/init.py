@@ -56,6 +56,6 @@ def create_app():
     app.register_blueprint(auth_bp, url_prefix="/auth")
     app.register_blueprint(feedback_bp, url_prefix="/feedback")
     app.register_blueprint(file_bp, url_prefix="/file")
-    app.register_blueprint(query_bp, url_prefix="/ask")
+    app.register_blueprint(query_bp, url_prefix="/ask") 
 
     return app
